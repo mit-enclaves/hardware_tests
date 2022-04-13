@@ -7,9 +7,10 @@ HW_TESTS_ELFS := $(addprefix $(BUILD_DIR)/, $(addsuffix .elf, $(HW_TESTS_NAMES))
 HW_TESTS_TASKS := $(addsuffix .task, $(HW_TESTS_NAMES))
 HW_TESTS_IDPT := $(BUILD_DIR)/idpt.bin
 
-CC:=riscv64-unknown-elf-gcc
+#CC:=riscv64-unknown-elf-gcc
+CC:=riscv64-unknown-linux-gnu-gcc
 
-CCFLAGS := -march=rv64g -mabi=lp64 -nostdlib -nostartfiles -fno-common -std=gnu11 -static -fPIC -g -O0 -Wall
+CCFLAGS := -march=rv64g_zifencei -mabi=lp64 -nostdlib -nostartfiles -fno-common -std=gnu11 -static -fPIC -g -O0 -Wall
 QEMU_FLAGS := -machine sanctum -m 2G -nographic
 
 .PHONY: check_env
