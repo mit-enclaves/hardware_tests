@@ -4,23 +4,22 @@ ENTRY( entry )
 SECTIONS
 {
   . = 0x80000000;
-  .htif ALIGN(0x1000) (NOLOAD) : {
-    *(.htif.fromhost)
-    *(.htif.tohost)
-  }
-
-  . = 0x80001000;
-  .text.illegal_address_kilo (NOLOAD) : {
-    _illegal_address_kilo = .;
-  }
-
-  . = 0x80002000;
   .text ALIGN(0x1000) : {
     *(.text.entry)
     *(.got)
     *(.got.plt)
     *(.rodata)
     *(.text)
+  }
+
+  .htif ALIGN(0x1000) (NOLOAD) : {
+    *(.htif.fromhost)
+    *(.htif.tohost)
+  }
+
+  . = 0x801FE000;
+  .text.illegal_address_kilo (NOLOAD) : {
+    _illegal_address_kilo = .;
   }
 
   . = 0x80200000;

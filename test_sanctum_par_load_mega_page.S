@@ -29,6 +29,7 @@ dut_entry:
   srl t2, t2, 0xC # Physical Address divided by 4KiB
   or t0, t0, t2 
   csrw satp, t0
+  sfence.vma
 
   /* Switch to S-mode, jump to the protected range */
   /** Set mPP to 1 (S-mode), sIE to 1, mPIE to 0 and TVM to 1 **/

@@ -9,6 +9,7 @@ HW_TESTS_IDPT := $(BUILD_DIR)/idpt.bin
 
 #CC:=riscv64-unknown-elf-gcc
 CC:=riscv64-unknown-linux-gnu-gcc
+OBJCOPY:=riscv64-unknown-linux-gnu-objcopy
 
 CCFLAGS := -march=rv64g_zifencei -mabi=lp64 -nostdlib -nostartfiles -fno-common -std=gnu11 -static -fPIC -g -O0 -Wall
 QEMU_FLAGS := -machine sanctum -m 2G -nographic
@@ -19,10 +20,32 @@ ifndef SANCTUM_QEMU
 	$(error SANCTUM_QEMU is undefined)
 endif
 
-# Identity Page Table 
-$(HW_TESTS_IDPT): $(HW_TESTS_DIR)/make_idpt.py
-	@echo "Building an identity page tables for hw_tests"
+BOOT_LD := $(HW_TESTS_DIR)/null_boot.lds
+
+# Build dir
+$(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)
+
+# Null Boot Loadder
+NULL_BOOT_BINARY := $(BUILD_DIR)/null_boot.bin
+NULL_BOOT_ELF := $(BUILD_DIR)/null_boot.elf
+
+BOOT_SRC := \
+       $(HW_TESTS_DIR)/null_boot.S
+
+# Rules
+$(NULL_BOOT_ELF): $(BOOT_SRC) $(BOOT_LD) $(BUILD_DIR)
+	$(CC) $(CCFLAGS) -T $(BOOT_LD) $(BOOT_SRC) -o $@
+
+$(NULL_BOOT_BINARY): $(NULL_BOOT_ELF)
+	$(OBJCOPY) -O binary --only-section=.boot  $< $@
+
+.PHONY: null_bootloader
+null_bootloader: $(NULL_BOOT_BINARY)
+
+# Identity Page Table 
+$(HW_TESTS_IDPT): $(HW_TESTS_DIR)/make_idpt.py $(BUILD_DIR)
+	@echo "Building an identity page tables for hw_tests"
 	cd $(BUILD_DIR) && python $(HW_TESTS_DIR)/make_idpt.py
 
 # Elf Files
@@ -32,8 +55,8 @@ $(BUILD_DIR)/%.elf: $(HW_TESTS_IDPT)
 
 # Run the Tests
 .PHONY: %.task
-%.task: check_env $(BUILD_DIR)/%.elf
-	- cd $(BUILD_DIR) && $(SANCTUM_QEMU) $(QEMU_FLAGS) -kernel $*.elf
+%.task: check_env $(BUILD_DIR)/%.elf $(NULL_BOOT_BINARY)
+	cd $(BUILD_DIR) && $(SANCTUM_QEMU) $(QEMU_FLAGS) -kernel $*.elf -bios $(NULL_BOOT_BINARY)
 
 # Build All the Elf Files
 .PHONY: elfs
