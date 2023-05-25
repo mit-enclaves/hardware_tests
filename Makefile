@@ -77,7 +77,7 @@ run_tests: $(HW_TESTS_TASKS)
 
 .PHONY: %.tasksim
 %.tasksim: check_env $(BUILD_DIR)/%.elf
-	echo /home/common/riscy-OOO/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock/verilator/bin/ubuntu.exe --core-num 2 --rom /home/common/riscy-OOO/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > debug.log
+	-/home/common/riscy-OOO/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock/verilator/bin/ubuntu.exe --core-num 2 --rom /home/common/riscy-OOO/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > debug.log
 
 .PHONY: run_tests_simulator
 run_tests_simulator: $(HW_TESTS_TASKSIM)
@@ -87,3 +87,4 @@ run_tests_simulator: $(HW_TESTS_TASKSIM)
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)
+	rm -rf debug.log
