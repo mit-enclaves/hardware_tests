@@ -4,6 +4,9 @@
 .global entry
 entry:
 
+csrr a0, mhartid // Only run test on core 0
+bne a0, zero, .halt
+
 /* Clear a0 */
 li a0, 0
 

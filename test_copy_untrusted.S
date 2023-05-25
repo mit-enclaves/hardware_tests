@@ -16,7 +16,7 @@ dut_entry:
   la t0, .default_trap_vector
   csrw mtvec, t0
 
-  /* Define the trusted memory as only the first DRAM Region */ 
+  /* Define the trusted memory as the first region of DRAM */ 
   li t0, 0x80000000 # Set mevbase
   csrw 0x07C0, t0
 //li t0, 0xFFFFFFFF80000000
@@ -64,14 +64,32 @@ dut_entry:
   csrw mepc, t0
   mret
  
-.user_program: 
-  li t0, 0x123456789
-  li t1, 0x987654321
-  add t0, t0, t1
-  li t2, 0x67420834
-  la t0, _illegal_address_region
-  lw t1, 0(t0)
-  lw t2, 4(t0)
+.user_program: /* Tries to read inside of untrusted memory */
+  li a0, 0x91000000
+  li a1, 0x92000000
+  li a2, 1500
+  li a3, 0
+.loop:
+  sb a3, 0(a0)
+  sb a3, 0(a1)
+  addi a3, a3, 1
+  addi a0, a0, 1
+  addi a1, a1, 1
+  bne a3, a2, .loop
+
+  csrw 0x801, 1
+  li a3, 0
+  li a0, 0x91000000
+  li a1, 0x92000000
+.loop2:
+  lbu a4, 0(a0)
+  sb a4, 0(a1)
+  addi a3, a3, 1
+  addi a0, a0, 1
+  addi a1, a1, 1
+  bne a3, a2, .loop2
+
+  csrw 0x801, 0
   li a0, 1 // The test is successful
   jr ra
 

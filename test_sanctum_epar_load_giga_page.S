@@ -60,10 +60,10 @@ dut_entry:
   mret
  
 .malicious_program: /* Tries to read at the limit of the protected range and then inside */
-  la t0, _illegal_address_giga // Read on next Giga page
-  li t1, 0x40000000
-  add t0, t0, t1
-  lw zero, 0(t0)
+  //la t0, _illegal_address_giga // Read on next Giga page // NEXT GIGA PAGE IS OUTSIDE MEMORY
+  //li t1, 0x40000000
+  //add t0, t0, t1
+  //lw zero, 0(t0)
   la t0, _illegal_address_giga // Read the last address before the illegal Giga page
   lw zero, -4(t0)
 .illegal_load: // Read the first address of the illegal Giga page

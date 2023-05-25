@@ -3,7 +3,7 @@ ENTRY( boot_entry )
 
 MEMORY
 {
-  BOOT (ax) :      ORIGIN = 0x1000,       LENGTH = 0x10
+  BOOT (ax) :      ORIGIN = 0x1000,       LENGTH = 0x20
 }
 
 SECTIONS

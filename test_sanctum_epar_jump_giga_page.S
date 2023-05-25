@@ -19,10 +19,10 @@ dut_entry:
   /* Copy the return instruction at legal and illegal addresses */
   li t2, 0x8067  // RET instruction
 
-  la t0, _illegal_address_giga
-  li t1, 0x40000000
-  add t0, t0, t1
-  sw t2,  0(t0)
+  //la t0, _illegal_address_giga // NEXT GIGA-PAGE IS OUTSIDE RAM
+  //li t1, 0x40000000
+  //add t0, t0, t1
+  //sw t2,  0(t0)
   la t0, _illegal_address_giga
   sw t2, -4(t0)
   sw t2,  0(t0)

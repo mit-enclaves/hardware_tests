@@ -5,14 +5,16 @@ BUILD_DIR:=$(HW_TESTS_DIR)/build
 HW_TESTS_NAMES :=  $(notdir $(basename $(wildcard $(HW_TESTS_DIR)/test_*)))
 HW_TESTS_ELFS := $(addprefix $(BUILD_DIR)/, $(addsuffix .elf, $(HW_TESTS_NAMES)))
 HW_TESTS_TASKS := $(addsuffix .task, $(HW_TESTS_NAMES))
+HW_TESTS_DEBUG := $(addsuffix .debug, $(HW_TESTS_NAMES))
+HW_TESTS_TASKSIM := $(addsuffix .tasksim, $(HW_TESTS_NAMES))
 HW_TESTS_IDPT := $(BUILD_DIR)/idpt.bin
 
-#CC:=riscv64-unknown-elf-gcc
-CC:=riscv64-unknown-linux-gnu-gcc
+CC:=riscv64-unknown-elf-gcc
+#CC:=riscv64-unknown-linux-gnu-gcc
 OBJCOPY:=riscv64-unknown-linux-gnu-objcopy
 
-CCFLAGS := -march=rv64g_zifencei -mabi=lp64 -nostdlib -nostartfiles -fno-common -std=gnu11 -static -fPIC -g -O0 -Wall
-QEMU_FLAGS := -machine sanctum -m 2G -nographic
+CCFLAGS := -march=rv64g_zifencei -mabi=lp64 -nostdlib -nostartfiles -fno-common -std=gnu11 -static -fPIC -ggdb3 -O0 -Wall
+QEMU_FLAGS := -smp cpus=2 -machine sanctum -m 2G -nographic
 
 .PHONY: check_env
 check_env:
@@ -56,7 +58,12 @@ $(BUILD_DIR)/%.elf: $(HW_TESTS_IDPT)
 # Run the Tests
 .PHONY: %.task
 %.task: check_env $(BUILD_DIR)/%.elf $(NULL_BOOT_BINARY)
-	cd $(BUILD_DIR) && $(SANCTUM_QEMU) $(QEMU_FLAGS) -kernel $*.elf -bios $(NULL_BOOT_BINARY)
+	-cd $(BUILD_DIR) && $(SANCTUM_QEMU) $(QEMU_FLAGS) -kernel $*.elf -bios $(NULL_BOOT_BINARY)
+
+# Debug the Tests
+.PHONY: %.debug
+%.debug: check_env $(BUILD_DIR)/%.elf $(NULL_BOOT_BINARY)
+	cd $(BUILD_DIR) && $(SANCTUM_QEMU) $(QEMU_FLAGS) -s -S -kernel $*.elf -bios $(NULL_BOOT_BINARY)
 
 # Build All the Elf Files
 .PHONY: elfs
@@ -65,6 +72,15 @@ elfs: $(HW_TESTS_ELFS)
 # Run All the Tests
 .PHONY: run_tests
 run_tests: $(HW_TESTS_TASKS)
+	@echo "All the test cases in $(HW_TESTS_DIR) have been run."
+	@echo "The tests were: $(HW_TESTS_NAMES)"
+
+.PHONY: %.tasksim
+%.tasksim: check_env $(BUILD_DIR)/%.elf
+	echo /home/common/riscy-OOO/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock/verilator/bin/ubuntu.exe --core-num 2 --rom /home/common/riscy-OOO/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > debug.log
+
+.PHONY: run_tests_simulator
+run_tests_simulator: $(HW_TESTS_TASKSIM)
 	@echo "All the test cases in $(HW_TESTS_DIR) have been run."
 	@echo "The tests were: $(HW_TESTS_NAMES)"
 

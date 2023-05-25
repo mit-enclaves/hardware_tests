@@ -60,10 +60,10 @@ dut_entry:
   mret
  
 .malicious_program: /* Tries to write at the limit of the protected range and then inside */
-  la t0, _illegal_address_giga // Write on next Giga page
-  li t1, 0x40000000
-  add t0, t0, t1
-  sw zero, 0(t0)
+  //la t0, _illegal_address_giga // Write on next Giga page // NEXT GIGA PAGE IS OUTSIDE OF RAM
+  //li t1, 0x40000000
+  //add t0, t0, t1
+  //sw zero, 0(t0)
   la t0, _illegal_address_giga // Write the last address before the illegal Giga page
   sw zero, -4(t0)
 .illegal_store: // Write the first address of the illegal Giga page

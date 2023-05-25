@@ -3,3 +3,8 @@
 
 #Build Files
 build
+
+*.txt
+*.log
+*.out
+*.tmp

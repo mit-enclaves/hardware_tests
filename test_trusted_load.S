@@ -20,6 +20,7 @@ dut_entry:
   li t0, 0x80000000 # Set mevbase
   csrw 0x07C0, t0
   li t0, 0xFFFFFFFF80000000
+//li t1, 0xFFFFFFFFFE000000
   csrw 0x07C1, t0 # Set mevmask
   
   /* Initialize meparbase and meparmask */
@@ -63,9 +64,14 @@ dut_entry:
   csrw mepc, t0
   mret
  
-.user_program: /* Tries to read inside of trusted memory */
-  la t0, _illegal_address_region // Read inside of trusted memory
-  lw zero, 0(t0)
+.user_program: 
+  li t0, 0x123456789
+  li t1, 0x987654321
+  add t0, t0, t1
+  li t2, 0x67420834
+  la t0, _illegal_address_region
+  lw t1, 0(t0)
+  lw t2, 4(t0)
   li a0, 1 // The test is successful
   jr ra
 
