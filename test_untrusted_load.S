@@ -65,13 +65,12 @@ dut_entry:
   mret
  
 .user_program: 
-  li t0, 0x123456789
-  li t1, 0x987654321
-  add t0, t0, t1
-  li t2, 0x67420834
-  la t0, _illegal_address_region
-  lw t1, 0(t0)
-  lw t2, 4(t0)
+  li t0, 0x91000000
+  li t1, 0x92000000
+  li t2, 0x12345678
+  sw t2, 0(t0)
+  lw t2, 0(t0)
+  sw t2, 0(t1)
   li a0, 1 // The test is successful
   jr ra
 

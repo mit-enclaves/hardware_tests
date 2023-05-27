@@ -12,6 +12,7 @@ HW_TESTS_IDPT := $(BUILD_DIR)/idpt.bin
 CC:=riscv64-unknown-elf-gcc
 #CC:=riscv64-unknown-linux-gnu-gcc
 OBJCOPY:=riscv64-unknown-linux-gnu-objcopy
+OBJDUMP:=riscv64-unknown-elf-objdump
 
 CCFLAGS := -march=rv64g_zifencei -mabi=lp64 -nostdlib -nostartfiles -fno-common -std=gnu11 -static -fPIC -ggdb3 -O0 -Wall
 QEMU_FLAGS := -smp cpus=2 -machine sanctum -m 2G -nographic
@@ -82,13 +83,29 @@ LOG_FILE := $(HW_TESTS_DIR)/debug.log
 
 .PHONY: %.tasksim
 %.tasksim: check_env $(BUILD_DIR)/%.elf
-	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock/verilator/bin/ubuntu.exe --core-num 2 --rom $(RISCY_HOME)/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > $(LOG_FILE)
+	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_1.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock/verilator/bin/ubuntu.exe --core-num 1 --rom $(RISCY_HOME)/procs/rom/out/rom_core_1 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > $(LOG_FILE)
 
 .PHONY: run_tests_simulator
 run_tests_simulator: $(HW_TESTS_TASKSIM)
 	@echo "All the test cases in $(HW_TESTS_DIR) have been run."
 	@echo "The tests were: $(HW_TESTS_NAMES)"
 
+ELFS := $(shell find $(BUILD_DIR) -name '*.elf')
+ELFS_PREF := $(addprefix $(BUILD_DIR)/, $(ELFS))
+DISASS = $(ELFS:.elf=.disa.out)
+DISASS_SOURCES = $(ELFS:.elf=.src.out)
+
+%.disa.out : %.elf
+	$(OBJDUMP) -D $^ > $@
+
+%.src.out : %.elf
+	$(OBJDUMP) -S $^ > $@
+
+.PHONY: disassemble-all
+disassemble-all:$(DISASS)
+
+.PHONY: source-all
+source-all:$(DISASS_SOURCES)
 .PHONY: clean
 clean:
 	rm -rf $(BUILD_DIR)

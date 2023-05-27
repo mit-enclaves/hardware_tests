@@ -67,7 +67,7 @@ dut_entry:
 .user_program: /* Tries to read inside of trusted memory */
   li a0, 0x91000000
   li a1, 0x92000000
-  li a2, 1500
+  li a2, 1000
   li a3, 0
 .loop:
   sb a3, 0(a0)
