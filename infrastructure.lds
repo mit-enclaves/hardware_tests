@@ -37,7 +37,7 @@ SECTIONS
     _illegal_address_giga = .;
   }
   
-  . = 0xFFFFD000;
+  . = 0xFFFFB000;
   .text.page_table ALIGN(0x1000) : {
     *(.text.page_table)
   }
