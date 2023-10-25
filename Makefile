@@ -3,10 +3,12 @@ HW_TESTS_DIR := $(call remove_trailing_slash, $(dir $(abspath $(lastword $(MAKEF
 BUILD_DIR:=$(HW_TESTS_DIR)/build
 
 HW_TESTS_NAMES :=  $(notdir $(basename $(wildcard $(HW_TESTS_DIR)/test_*)))
+#HW_TESTS_NAMES := $(notdir $(basename $(wildcard $(HW_TESTS_DIR)/test_sanctum_low*)))
 HW_TESTS_ELFS := $(addprefix $(BUILD_DIR)/, $(addsuffix .elf, $(HW_TESTS_NAMES)))
 HW_TESTS_TASKS := $(addsuffix .task, $(HW_TESTS_NAMES))
 HW_TESTS_DEBUG := $(addsuffix .debug, $(HW_TESTS_NAMES))
 HW_TESTS_TASKSIM := $(addsuffix .tasksim, $(HW_TESTS_NAMES))
+HW_TESTS_TASKFPGA := $(addsuffix .taskfpga, $(HW_TESTS_NAMES))
 HW_TESTS_IDPT := $(BUILD_DIR)/idpt.bin
 
 CC:=riscv64-unknown-elf-gcc
@@ -87,6 +89,16 @@ LOG_FILE := $(HW_TESTS_DIR)/debug.log
 
 .PHONY: run_tests_simulator
 run_tests_simulator: $(HW_TESTS_TASKSIM)
+	@echo "All the test cases in $(HW_TESTS_DIR) have been run."
+	@echo "The tests were: $(HW_TESTS_NAMES)"
+
+.PHONY: %.taskfpga
+%.taskfpga: check_env $(BUILD_DIR)/%.elf
+	sudo fpga-load-local-image -S 0 -I agfi-0b25880fb5ae74da1
+	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock.non_uniform_L2/awsf1/bin/ubuntu.exe --core-num 2 --rom $(RISCY_HOME)/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 --ignore-user-stucks 1000000
+
+.PHONY: run_tests_fpga
+run_tests_fpga: $(HW_TESTS_TASKFPGA)
 	@echo "All the test cases in $(HW_TESTS_DIR) have been run."
 	@echo "The tests were: $(HW_TESTS_NAMES)"
 
