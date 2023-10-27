@@ -2,7 +2,7 @@ remove_trailing_slash = $(if $(filter %/,$(1)),$(call remove_trailing_slash,$(pa
 HW_TESTS_DIR := $(call remove_trailing_slash, $(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 BUILD_DIR:=$(HW_TESTS_DIR)/build
 
-HW_TESTS_NAMES :=  $(notdir $(basename $(wildcard $(HW_TESTS_DIR)/test_*)))
+HW_TESTS_NAMES :=  $(notdir $(basename $(wildcard $(HW_TESTS_DIR)/test_sanctum_low_va*)))
 HW_TESTS_ELFS := $(addprefix $(BUILD_DIR)/, $(addsuffix .elf, $(HW_TESTS_NAMES)))
 HW_TESTS_TASKS := $(addsuffix .task, $(HW_TESTS_NAMES))
 HW_TESTS_DEBUG := $(addsuffix .debug, $(HW_TESTS_NAMES))

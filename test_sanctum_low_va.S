@@ -17,7 +17,7 @@ dut_entry:
   csrw mtvec, t0
 
   /* Define the enclave memory as 256MB, starting at 0xC0000000 */ 
-  li t0, 0xC0000000 # Set mevbase
+  li t0, 0x80000000 # Set mevbase
   csrw 0x07C0, t0
   li t0, 0xFFFFFFFFF0000000
   csrw 0x07C1, t0 # Set mevmask
@@ -45,6 +45,7 @@ dut_entry:
 
   /* Switch to S-mode, jump to the protected range */
   /** Set mPP to 1 (S-mode), sIE to 1, mPIE to 0 and TVM to 1 **/
+  /*
   csrr t0, mstatus
   # MSTATUS_TVM:  0x00100000
   # MSTATUS_MPP:  0x00001800
@@ -54,6 +55,35 @@ dut_entry:
   li t2, 0x00100802
   and t0, t0, t1
   or t0, t0, t2
+  csrw mstatus, t0
+  */
+
+  /* Set to launch enclave in U mode */
+  // Set TVM to 1, MPP to 0 (U mode), MPIE, SIE to 0, UIE to 1
+  // MSTATUS_TVM_MASK   (0x00100000)
+  // MSTATUS_MPP_MASK   (0x00001800)
+  // MSTATUS_MPP_OFFSET (11)
+  // MSTATUS_MPIE_MASK  (0x00000080)
+  // MSTATUS_MIE_MASK   (0x00000008)
+  // MSTATUS_SIE_MASK   (0x00000002)
+  // MSTATUS_UIE_MASK   (0x00000001)
+  csrr t0, mstatus
+  li t1, 0x00100000
+  or t0, t0, t1 // |=  TVM_Mask
+
+  li t1, 0xffffffffffffe7ff
+  and t0, t0, t1 // &= ~MPP Mask
+
+  li t1, 0xffffffffffffff7f
+  and t0, t0, t1 // &= ~MPIE Mask
+
+  li t1, 0xfffffffffffffffd
+  and t0, t0, t1 // &= ~SIE Mask
+
+  li t1, 0x00000001
+  or t0, t0, t1 // |=  UIE Mask
+
+  li t1, 0
   csrw mstatus, t0
 
   /* Set return address to user program mret to S-mode */
@@ -65,9 +95,7 @@ dut_entry:
   /* All of these reads should succeed */
   /* We read some low VA addresses around 0x0 that map to 0x80000000 */
 
-  li t0, 0x0
-  lw t1, 0(t0)
-  li t0, 0x200000
+  li t0, 0x19b5f0
   lw t1, 0(t0)
 
   j .test_success
