@@ -33,10 +33,19 @@ SECTIONS
   }
   
   . = 0xC0000000;
-  .text.illegal_address_giga (NOLOAD) : {
-    _illegal_address_giga = .;
+  .text.enclave_program ALIGN(0x1000) : {
+    *(.text.enclave_program)
+    *(.got)
+    *(.got.plt)
+    *(.rodata)
+    *(.text)
   }
-  
+
+  . = 0xFFFFB000;
+  .text.enclave_page_table ALIGN(0x1000) : {
+    *(.text.enclave_page_table)
+  }
+
   . = 0xFFFFD000;
   .text.page_table ALIGN(0x1000) : {
     *(.text.page_table)

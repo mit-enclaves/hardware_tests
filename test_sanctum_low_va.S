@@ -16,23 +16,23 @@ dut_entry:
   la t0, .default_trap_vector
   csrw mtvec, t0
 
-  /* Define the enclave memory as 256MB, starting at 0xC0000000 */ 
-  li t0, 0x80000000 # Set mevbase
+  /* Define the enclave memory as 32MB, starting at 0x20000000 */
+  li t0, 0x20000000 # Set mevbase
   csrw 0x07C0, t0
-  li t0, 0xFFFFFFFFF0000000
+  li t0, 0xfffffffffe000000
   csrw 0x07C1, t0 # Set mevmask
 
-  li t0, 0xFFFFFFFFFFFFFFFF
+  li t0, 0xffffffffffffffff
   csrw 0x07C4, t0  # Set memrbm
 
   /* Define no protected memory region */
-  la t0, 0xFFFFFFFFFFFFFFFF
+  la t0, 0xffffffffffffffff
   csrw 0x07C7, t0 # Set meparbase
   li t0, 0x0
   csrw 0x07C8, t0 # Set meparmask
 
   /* Activate Address Translation */
-  /** Set satp mode to Sv39 **/  
+  /** Set satp mode to Sv39 **/
   # SATP_MODE: 0xFF00000000000000
   li t0, 0x8000000000000000 # Mode Sv39 is value 8
   la t1, root_page_table
@@ -41,6 +41,8 @@ dut_entry:
   csrw satp, t0
 
   /** Set the root page table address for enclave page walk **/
+  la t1, enclave_page_table
+  srl t1, t1, 0xC
   csrw 0x07C2, t1 # Set meatp
 
   /* Switch to S-mode, jump to the protected range */
@@ -86,19 +88,10 @@ dut_entry:
   li t1, 0
   csrw mstatus, t0
 
-  /* Set return address to user program mret to S-mode */
-  la t0, .user_program
+  /* Set return address to user program mret to U-mode */
+  la t0, 0x20000000
   csrw mepc, t0
   mret
- 
-.user_program:
-  /* All of these reads should succeed */
-  /* We read some low VA addresses around 0x0 that map to 0x80000000 */
-
-  li t0, 0x19b5f0
-  lw t1, 0(t0)
-
-  j .test_success
 
 .default_trap_vector:
   j .test_failure
@@ -107,6 +100,12 @@ dut_entry:
   li a0, 0 // Fail this test!
   jr ra /* return to  caller */
 
-.test_success:
-  li a0, 1 // The test is successful
-  jr ra /* return to caller */
+.section .text.enclave_program
+.global enclave_program
+enclave_program:
+  li t0, 0x19b5f0
+  lw t1, 0(t0)
+
+  // Successful test
+  li a0, 1
+  jr ra

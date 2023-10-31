@@ -7,7 +7,7 @@ HW_TESTS_ELFS := $(addprefix $(BUILD_DIR)/, $(addsuffix .elf, $(HW_TESTS_NAMES))
 HW_TESTS_TASKS := $(addsuffix .task, $(HW_TESTS_NAMES))
 HW_TESTS_DEBUG := $(addsuffix .debug, $(HW_TESTS_NAMES))
 HW_TESTS_TASKSIM := $(addsuffix .tasksim, $(HW_TESTS_NAMES))
-HW_TESTS_IDPT := $(BUILD_DIR)/idpt.bin
+HW_TESTS_IDPT := $(BUILD_DIR)/idpt.bin $(BUILD_DIR)/enclave_pt.bin
 
 CC:=riscv64-unknown-elf-gcc
 #CC:=riscv64-unknown-linux-gnu-gcc
@@ -50,9 +50,9 @@ $(NULL_BOOT_BINARY): $(NULL_BOOT_ELF)
 null_bootloader: $(NULL_BOOT_BINARY)
 
 # Identity Page Table 
-$(HW_TESTS_IDPT): $(HW_TESTS_DIR)/make_idpt.py $(BUILD_DIR)
+$(HW_TESTS_IDPT): $(HW_TESTS_DIR)/make_idpt.py $(HW_TESTS_DIR)/make_enclave_pt.py $(BUILD_DIR)
 	@echo "Building an identity page tables for hw_tests"
-	cd $(BUILD_DIR) && python $(HW_TESTS_DIR)/make_idpt.py
+	cd $(BUILD_DIR) && python $(HW_TESTS_DIR)/make_idpt.py && python $(HW_TESTS_DIR)/make_enclave_pt.py
 
 # Elf Files
 $(BUILD_DIR)/%.elf: $(HW_TESTS_IDPT)

@@ -29,6 +29,35 @@ void pass_test() {
 }
 
 void fail_test() {
+  /*
+   * Instead of converting integers to ascii strings...
+   * hardcode some print statements :')
+   */
+  uint64_t value;
+
+  __asm__ volatile("csrr %0, mcause" : "=r"(value));
+  if (value == 12) {
+    print_str("[TEST] mcause was 12\n");
+  } else if (value == 13) {
+    print_str("[TEST] mcause was 13\n");
+  } else {
+    print_str("[TEST] mcause was ??\n");
+  }
+
+  __asm__ volatile("csrr %0, mtval" : "=r"(value));
+  if (value == 0x19b5f0) {
+    print_str("mtval is 0x19b5f0\n");
+  } else {
+    print_str("mtval is ????????\n");
+  }
+
+  __asm__ volatile("csrr %0, mepc" : "=r"(value));
+  if (value == 0x20000008) {
+    print_str("mepc is 0x20000008\n");
+  } else {
+    print_str("mepc is ??????????\n");
+  }
+
   print_str("[TEST] FAILED\n");
   tohost = TOHOST_CMD(0, 0, 0b11); // report test done; 1 exit code
 }

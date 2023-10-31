@@ -4,4 +4,4 @@ foc cmd
 set trace-commands on
 set logging on
 target remote localhost:1234
-#add-symbol-file test_untrusted_load.elf
+add-symbol-file build/test_sanctum_low_va.elf
