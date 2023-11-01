@@ -109,7 +109,6 @@ dut_entry:
 .section .text.enclave_program
 .global enclave_program
 enclave_program:
-  ecall
   li t0, 0x19b5f0
   lw t1, 0(t0)
 
