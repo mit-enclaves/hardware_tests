@@ -52,7 +52,7 @@ null_bootloader: $(NULL_BOOT_BINARY)
 # Identity Page Table 
 $(HW_TESTS_IDPT): $(HW_TESTS_DIR)/make_idpt.py $(HW_TESTS_DIR)/make_enclave_pt.py $(BUILD_DIR)
 	@echo "Building an identity page tables for hw_tests"
-	cd $(BUILD_DIR) && python $(HW_TESTS_DIR)/make_idpt.py && python $(HW_TESTS_DIR)/make_enclave_pt.py
+	cd $(BUILD_DIR) && python3 $(HW_TESTS_DIR)/make_idpt.py && python3 $(HW_TESTS_DIR)/make_enclave_pt.py
 
 # Elf Files
 $(BUILD_DIR)/%.elf: $(HW_TESTS_IDPT)
@@ -83,10 +83,20 @@ LOG_FILE := $(HW_TESTS_DIR)/debug.log
 
 .PHONY: %.tasksim
 %.tasksim: check_env $(BUILD_DIR)/%.elf
-	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_1.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock/verilator/bin/ubuntu.exe --core-num 1 --rom $(RISCY_HOME)/procs/rom/out/rom_core_1 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > $(LOG_FILE)
+	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock.non_uniform_L2.sm_no_dma/verilator/bin/ubuntu.exe --core-num 2 --rom $(RISCY_HOME)/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > $(LOG_FILE)
 
 .PHONY: run_tests_simulator
 run_tests_simulator: $(HW_TESTS_TASKSIM)
+	@echo "All the test cases in $(HW_TESTS_DIR) have been run."
+	@echo "The tests were: $(HW_TESTS_NAMES)"
+
+.PHONY: %.taskfpga
+%.taskfpga: check_env $(BUILD_DIR)/%.elf
+	sudo fpga-load-local-image -S 0 -I agfi-0b25880fb5ae74da1
+	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock.non_uniform_L2.sm_no_dma/aws1/bin/ubuntu.exe --core-num 2 --rom $(RISCY_HOME)/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 --ignore-user-stucks 1000000
+
+.PHONY: run_tests_fpga
+run_tests_fpga: $(HW_TESTS_TASKFPGA)
 	@echo "All the test cases in $(HW_TESTS_DIR) have been run."
 	@echo "The tests were: $(HW_TESTS_NAMES)"
 

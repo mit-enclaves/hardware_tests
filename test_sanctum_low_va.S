@@ -87,14 +87,20 @@ dut_entry:
 
   li t1, 0
   csrw mstatus, t0
-
+  
   /* Set return address to user program mret to U-mode */
   la t0, 0x20000000
   csrw mepc, t0
   mret
 
 .default_trap_vector:
-  j .test_failure
+  csrr t0, mcause // Check if this is an ECALL
+  li t1, 0x8
+  bne t0, t1, .test_failure
+  
+  // Test succeeded
+  li a0, 1
+  jr ra
 
 .test_failure:
   li a0, 0 // Fail this test!
@@ -103,9 +109,9 @@ dut_entry:
 .section .text.enclave_program
 .global enclave_program
 enclave_program:
+  ecall
   li t0, 0x19b5f0
   lw t1, 0(t0)
 
   // Successful test
-  li a0, 1
-  jr ra
+  ecall

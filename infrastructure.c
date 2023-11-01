@@ -23,9 +23,14 @@ void print_str(char* s) {
   }
 }
 
+void print_cntr() {
+  print_str("Reached here\n");
+}
+
 void pass_test() {
   print_str("[TEST] OK\n");
   tohost = TOHOST_CMD(0, 0, 0b01); // report test done; 0 exit code
+  while(1) {};
 }
 
 void fail_test() {
@@ -60,4 +65,5 @@ void fail_test() {
 
   print_str("[TEST] FAILED\n");
   tohost = TOHOST_CMD(0, 0, 0b11); // report test done; 1 exit code
+  while(1) {};
 }
