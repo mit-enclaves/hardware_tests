@@ -30,10 +30,6 @@ la sp, stack_ptr
 beq a0, zero, .test_failed
 j .test_passed
 
-/* Routine for printing characters to the console over HTIF */
-.putchar:
-  jr ra
-
 /* If the test reports as failed, print "FAIL" in the console */
 .test_failed:
 /* Print "FAIL" */
@@ -49,11 +45,6 @@ j .halt
 /* Halt */
 .halt:
   j .halt /* spin forever, for now */
-
-  .align 4
-stack_base:
-  .skip 4096
-stack_ptr:
 
 /* Copy the page table in the dedicated region */ 
 

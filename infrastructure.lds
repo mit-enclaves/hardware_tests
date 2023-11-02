@@ -24,10 +24,25 @@ SECTIONS
   . = 0x80000000;
   .text ALIGN(0x1000) : {
     *(.text.entry)
+    *(.text)
+    *(.text)
+  } > DRAM =0x0
+
+  .data ALIGN(0x1000) : {
+    *(.data)
+    *(.data.*)
+  } > DRAM =0x0
+
+  .bss ALIGN(0x1000) : {
+    *(.bss)
+    *(.bss.*)
+  } > DRAM =0x0
+
+  .rodata ALIGN(0x1000) : {
+    *(.rodata)
+    *(.rodata.*)
     *(.got)
     *(.got.plt)
-    *(.rodata)
-    *(.text)
   } > DRAM =0x0
 
   . = 0x801FE000;
@@ -48,10 +63,6 @@ SECTIONS
   . = 0xC0000000;
   .text.enclave_program ALIGN(0x1000) : {
     *(.text.enclave_program)
-    *(.got)
-    *(.got.plt)
-    *(.rodata)
-    *(.text)
   } > DRAM =0x0
 
   . = 0xFFFFB000;

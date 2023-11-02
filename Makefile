@@ -54,10 +54,12 @@ $(HW_TESTS_IDPT): $(HW_TESTS_DIR)/make_idpt.py $(HW_TESTS_DIR)/make_enclave_pt.p
 	@echo "Building an identity page tables for hw_tests"
 	cd $(BUILD_DIR) && python3 $(HW_TESTS_DIR)/make_idpt.py && python3 $(HW_TESTS_DIR)/make_enclave_pt.py
 
+COMMON_SRC := $(HW_TESTS_DIR)/infrastructure.c $(HW_TESTS_DIR)/infrastructure.S $(HW_TESTS_DIR)/stack.S 
+
 # Elf Files
 $(BUILD_DIR)/%.elf: $(HW_TESTS_IDPT)
 	mkdir -p $(BUILD_DIR)
-	$(CC) -T $(HW_TESTS_DIR)/infrastructure.lds -I $(BUILD_DIR) $(CCFLAGS) $(HW_TESTS_DIR)/infrastructure.c $(HW_TESTS_DIR)/$*.S -o $(BUILD_DIR)/$*.elf
+	$(CC) -T $(HW_TESTS_DIR)/infrastructure.lds -I $(BUILD_DIR) $(CCFLAGS) $(COMMON_SRC) $(HW_TESTS_DIR)/$*.S -o $(BUILD_DIR)/$*.elf
 
 # Run the Tests
 .PHONY: %.task

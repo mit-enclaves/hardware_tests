@@ -1,5 +1,3 @@
-#include "infrastructure.S"
-
 .section .text
 
 .global dut_entry
