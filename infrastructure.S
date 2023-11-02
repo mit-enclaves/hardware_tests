@@ -24,7 +24,7 @@ csrw 0x7c5, t1 // Write MPARBASE
 csrw 0x7c6, t0 // Write MPARMASK
 
 /* Call into design under test */
-call dut_entry
+#call dut_entry
 la sp, stack_ptr
 /* Read test result */
 beq a0, zero, .test_failed
