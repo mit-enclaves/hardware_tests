@@ -52,7 +52,7 @@ j .halt
 
   .align 4
 stack_base:
-  .skip 128
+  .skip 4096
 stack_ptr:
 
 /* Copy the page table in the dedicated region */ 

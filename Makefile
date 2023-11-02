@@ -14,7 +14,7 @@ CC:=riscv64-unknown-elf-gcc
 OBJCOPY:=riscv64-unknown-linux-gnu-objcopy
 OBJDUMP:=riscv64-unknown-elf-objdump
 
-CCFLAGS := -march=rv64g_zifencei -mabi=lp64 -nostdlib -nostartfiles -fno-common -std=gnu11 -static -fPIC -ggdb3 -O0 -Wall
+CCFLAGS := -march=rv64g -mcmodel=medany -mabi=lp64 -nostdlib -nostartfiles -fno-common -fno-tree-loop-distribute-patterns -std=gnu11 -static -ggdb3 -O0 -Wall
 QEMU_FLAGS := -smp cpus=2 -machine sanctum -m 2G -nographic
 
 .PHONY: check_env
