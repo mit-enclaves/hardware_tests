@@ -61,7 +61,7 @@ COMMON_SRC := $(HW_TESTS_DIR)/infrastructure.c $(HW_TESTS_DIR)/infrastructure.S 
 # Elf Files
 $(BUILD_DIR)/%.elf: $(HW_TESTS_PT) $(COMMON_SRC)
 	mkdir -p $(BUILD_DIR)
-	$(CC) -T $(HW_TESTS_DIR)/infrastructure.lds -I $(BUILD_DIR) $(CCFLAGS) $(COMMON_SRC) $(HW_TESTS_DIR)/$*.S -D OS_PT_FILE=\"$(OS_PT_FILE)\" -D ENCLAVE_PT_FILE=\"$(ENCLAVE_PT_FILE)\" -o $(BUILD_DIR)/$*.elf
+	$(CC) -T $(HW_TESTS_DIR)/infrastructure.lds -I $(BUILD_DIR) $(CCFLAGS) $(COMMON_SRC) -D OS_PT_FILE=\"$(OS_PT_FILE)\" -D ENCLAVE_PT_FILE=\"$(ENCLAVE_PT_FILE)\" -o $(BUILD_DIR)/$*.elf
 
 # Run the Tests
 .PHONY: %.task
