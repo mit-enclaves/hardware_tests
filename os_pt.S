@@ -4,8 +4,6 @@
   #error enclave_pt.bin path not defined
 #endif
 
-.align 12
-
-.globl os_pt
-os_pt:
+.globl root_page_table
+root_page_table:
   .incbin OS_PT_FILE
