@@ -7,7 +7,9 @@ HW_TESTS_ELFS := $(addprefix $(BUILD_DIR)/, $(addsuffix .elf, $(HW_TESTS_NAMES))
 HW_TESTS_TASKS := $(addsuffix .task, $(HW_TESTS_NAMES))
 HW_TESTS_DEBUG := $(addsuffix .debug, $(HW_TESTS_NAMES))
 HW_TESTS_TASKSIM := $(addsuffix .tasksim, $(HW_TESTS_NAMES))
-HW_TESTS_IDPT := $(BUILD_DIR)/idpt.bin $(BUILD_DIR)/enclave_pt.bin
+ENCLAVE_PT_FILE := $(BUILD_DIR)/enclave_pt.bin
+OS_PT_FILE := $(BUILD_DIR)/idpt.bin
+HW_TESTS_PT := $(ENCLAVE_PT_FILE) $(OS_PT_FILE)
 
 CC:=riscv64-unknown-elf-gcc
 #CC:=riscv64-unknown-linux-gnu-gcc
@@ -50,16 +52,16 @@ $(NULL_BOOT_BINARY): $(NULL_BOOT_ELF)
 null_bootloader: $(NULL_BOOT_BINARY)
 
 # Identity Page Table 
-$(HW_TESTS_IDPT): $(HW_TESTS_DIR)/make_idpt.py $(HW_TESTS_DIR)/make_enclave_pt.py $(BUILD_DIR)
-	@echo "Building an identity page tables for hw_tests"
+$(HW_TESTS_PT): $(HW_TESTS_DIR)/make_idpt.py $(HW_TESTS_DIR)/make_enclave_pt.py $(BUILD_DIR)
+	@echo "Building identity page tables for hw_tests"
 	cd $(BUILD_DIR) && python3 $(HW_TESTS_DIR)/make_idpt.py && python3 $(HW_TESTS_DIR)/make_enclave_pt.py
 
-COMMON_SRC := $(HW_TESTS_DIR)/infrastructure.c $(HW_TESTS_DIR)/infrastructure.S $(HW_TESTS_DIR)/stack.S 
+COMMON_SRC := $(HW_TESTS_DIR)/infrastructure.c $(HW_TESTS_DIR)/infrastructure.S $(HW_TESTS_DIR)/stack.S $(HW_TESTS_DIR)/enclave_pt.S $(HW_TESTS_DIR)/os_pt.S
 
 # Elf Files
-$(BUILD_DIR)/%.elf: $(HW_TESTS_IDPT)
+$(BUILD_DIR)/%.elf: $(HW_TESTS_PT) $(COMMON_SRC)
 	mkdir -p $(BUILD_DIR)
-	$(CC) -T $(HW_TESTS_DIR)/infrastructure.lds -I $(BUILD_DIR) $(CCFLAGS) $(COMMON_SRC) $(HW_TESTS_DIR)/$*.S -o $(BUILD_DIR)/$*.elf
+	$(CC) -T $(HW_TESTS_DIR)/infrastructure.lds -I $(BUILD_DIR) $(CCFLAGS) $(COMMON_SRC) -D OS_PT_FILE=\"$(OS_PT_FILE)\" -D ENCLAVE_PT_FILE=\"$(ENCLAVE_PT_FILE)\" -o $(BUILD_DIR)/$*.elf
 
 # Run the Tests
 .PHONY: %.task

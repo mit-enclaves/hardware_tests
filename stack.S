@@ -4,4 +4,3 @@
 stack_base:
   .skip 0x1000
 stack_ptr:
-

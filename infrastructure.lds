@@ -25,7 +25,6 @@ SECTIONS
   .text ALIGN(0x1000) : {
     *(.text.entry)
     *(.text)
-    *(.text)
   } > DRAM =0x0
 
   .data ALIGN(0x1000) : {
@@ -45,33 +44,18 @@ SECTIONS
     *(.got.plt)
   } > DRAM =0x0
 
-  . = 0x801FE000;
-  .text.illegal_address_kilo (NOLOAD) : {
-    _illegal_address_kilo = .;
-  } > DRAM =0x0
-
-  . = 0x80200000;
-  .text.illegal_address_mega (NOLOAD) : {
-    _illegal_address_mega = .;
-  } > DRAM =0x0
-  
-  . = 0x82000000;
-  .text.illegal_address_region (NOLOAD) : {
-    _illegal_address_region = .;
-  } > DRAM =0x0
-  
   . = 0xC0000000;
   .text.enclave_program ALIGN(0x1000) : {
     *(.text.enclave_program)
   } > DRAM =0x0
 
   . = 0xFFFFB000;
-  .text.enclave_page_table ALIGN(0x1000) : {
-    *(.text.enclave_page_table)
+  .enclave_page_table ALIGN(0x1000) : {
+    *(.enclave_page_table)
   } > DRAM =0x0
 
   . = 0xFFFFD000;
-  .text.page_table ALIGN(0x1000) : {
-    *(.text.page_table)
+  .os_page_table ALIGN(0x1000) : {
+    *(.page_table)
   } > DRAM =0x0
 }

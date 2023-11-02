@@ -45,15 +45,3 @@ j .halt
 /* Halt */
 .halt:
   j .halt /* spin forever, for now */
-
-/* Copy the page table in the dedicated region */ 
-
-.section .text.page_table
-.global root_page_table
-root_page_table:
-  .incbin "idpt.bin"
-
-.section .text.enclave_page_table
-.global enclave_page_table
-enclave_page_table:
-  .incbin "enclave_pt.bin"
