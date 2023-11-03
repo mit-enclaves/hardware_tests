@@ -5,9 +5,9 @@ import struct
 # Tries to construct page table matching the path
 # that triggers our hardware bug.
 
-# Everything is identity, except for 0x19b000 -> 0x19c000.
+# Everything is identity, except for [0x19b000, 0x19c000], which maps to 0x8000_0000.
 
-leaf_permissions = 0b11011111 # D A (not G) X W R V
+leaf_permissions = 0b11011111 # D A (not G) U X W R V
 node_permissions = 0b00000001 # Node
 
 PGSHIFT = 12
@@ -40,7 +40,7 @@ with open('idpt.bin', 'wb') as f:
     # level = 1
     for i in range(512):
         if (i == 0x19b): # 0x19b5f0 --> 0x19b
-            pte = (0x20b258d7) # exact pte ;shrug;
+            pte = (0x200000d7) # 0x19b000 --> 0x8000_0000
         else:
             pte = (((i*0x1000) >> PGSHIFT) << PTE_PPN_SHIFT) | leaf_permissions
         bytes_to_write = struct.pack('<Q', pte)
