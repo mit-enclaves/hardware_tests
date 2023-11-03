@@ -27,7 +27,7 @@ with open('enclave_pt.bin', 'wb') as f:
 
     for i in range(512):
         if (i >= 256) and (i < 256 + 16):
-            pte = (((0xC000_0000 + (i - 256)*0x1000*512) >> PGSHIFT) << PTE_PPN_SHIFT) | leaf_permissions
+            pte = (((0x8200_0000 + (i - 256)*0x1000*512) >> PGSHIFT) << PTE_PPN_SHIFT) | leaf_permissions
         else:
             pte = 0
         bytes_to_write = struct.pack('<Q', pte)

@@ -44,7 +44,7 @@ SECTIONS
     *(.got.plt)
   } > DRAM =0x0
 
-  . = 0xC0000000;
+  . = 0x82000000;
   .text.enclave_program ALIGN(0x1000) : {
     *(.text.enclave_program)
   } > DRAM =0x0
