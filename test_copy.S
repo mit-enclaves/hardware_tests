@@ -1,5 +1,3 @@
-#include "infrastructure.S"
-
 .section .text
 
 .global dut_entry
@@ -13,7 +11,7 @@ dut_entry:
     1 if the test PASSES */
 
   /* Set up a trap vector */
-  la t0, .default_trap_vector
+  la t0, .new_trap_vector
   csrw mtvec, t0
 
   /* Define the trusted memory as two Gigas of DRAM */ 
@@ -93,7 +91,7 @@ dut_entry:
   li a0, 1 // The test is successful
   jr ra
 
-.default_trap_vector:
+.new_trap_vector:
   j .test_failure
 
 .test_failure:

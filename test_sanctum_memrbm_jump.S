@@ -1,5 +1,3 @@
-#include "infrastructure.S"
-
 .section .text
 
 .global dut_entry
@@ -42,7 +40,7 @@ dut_entry:
   fence.i
   
   /* Set up a trap vector */
-  la t0, .default_trap_vector
+  la t0, .new_trap_vector
   csrw mtvec, t0
 
   /* Set MEMRBM */
@@ -97,7 +95,7 @@ dut_entry:
 
   j .test_failure
 
-.default_trap_vector:
+.new_trap_vector:
   csrr t0, mcause // Check this is an Instruction Page Fault
   li t1, 0xC
   bne t0, t1, .test_failure

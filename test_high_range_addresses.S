@@ -14,19 +14,37 @@ dut_entry:
   la t0, .new_trap_vector
   csrw mtvec, t0
 
-  la t0, _illegal_address_mega
-  csrw 0x07C5, t0 # Set mparbase
-  li t0, 0xFFE00000
-  csrw 0x07C6, t0 # Set mparmask
+  /* Define the trusted memory as two Gigas of DRAM */ 
+//li t0, 0x80000000 # Set mevbase
+  li t0, 0xFFFFFFFFFFFFFFFF
+  csrw 0x07C0, t0
+//li t0, 0xFFFFFFFF80000000
+//li t0, 0xFFFFFFFFFE000000
+  li t0, 0x0000000000000000
+  csrw 0x07C1, t0 # Set mevmask
+  
+  /* Initialize meparbase and meparmask */
+  li t0, 0xFFFFFFFFFFFFFFFF
+  csrw 0x07C7, t0 # Set meparbase
+  li t0, 0x0000000000000000
+  csrw 0x07C8, t0 # Set meparmask
+
+  li t0, 0xFFFFFFFFFFFFFFFF
+  csrw 0x07C4, t0  # Set memrbm
 
   /* Activate Address Translation */
-  /** Set satp mode to Sv39 and set the root page table address **/ 
+  /** Set satp mode to Sv39 **/  
   # SATP_MODE: 0xFF00000000000000
   li t0, 0x8000000000000000 # Mode Sv39 is value 8
-  la t2, root_page_table
-  srl t2, t2, 0xC # Physical Address divided by 4KiB
-  or t0, t0, t2 
+
+  /** Set the root page table address for unstrusted page walk **/
+  la t1, root_page_table
+  srl t1, t1, 0xC # Physical Address divided by 4KiB
+  or t0, t0, t1
   csrw satp, t0
+  
+  /** Set the root page table address for trusted page walk **/
+  csrw 0x07C2, t1 # Set meatp
 
   /* Switch to S-mode, jump to the protected range */
   /** Set mPP to 1 (S-mode), sIE to 1, mPIE to 0 and TVM to 1 **/
@@ -42,37 +60,24 @@ dut_entry:
   csrw mstatus, t0
 
   /* Set return address to malicious program mret to S-mode */
-  la t0, .malicious_program
+  la t0, .user_program
   csrw mepc, t0
   mret
  
-.malicious_program: /* Tries to write at the limit of the protected range and then inside */
-  la t0, _illegal_address_mega
-  li t1, 0x00200000
-  add t0, t0, t1
-  sw zero, 0(t0)
-  la t0, _illegal_address_mega
-  sw zero, -4(t0)
-.illegal_store: // Write the first address of the illegal Mega page
-  sw zero, 0(t0)
-
-  j .test_failure
-
-.new_trap_vector:
-  csrr t0, mcause // Check this is a Store Page Fault
-  li t1, 0xF
-  bne t0, t1, .test_failure
-
-  csrr t0, mepc   // That happend during the illegal store
-  la t1, .illegal_store
-  bne t0, t1, .test_failure
-
-  csrr t0, mtval  // On the illegal address
-  la t1, _illegal_address_mega
-  bne t0, t1, .test_failure
-
+.user_program: 
+  li t0, 0x80000000
+  li t1, 0x180000000
+  li a1, 0x67420834
+  sw a1, 0(t0)
+  lw a1, 0(t0)
+.high_address_access:
+  lw a2, 0(t1)
+  sw a1, 0(t1)
   li a0, 1 // The test is successful
   jr ra
+
+.new_trap_vector:
+  j .test_failure
 
 .test_failure:
   li a0, 0 // Fail this test!

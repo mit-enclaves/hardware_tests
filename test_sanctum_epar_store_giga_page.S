@@ -1,5 +1,3 @@
-#include "infrastructure.S"
-
 .section .text
 
 .global dut_entry
@@ -13,7 +11,7 @@ dut_entry:
     1 if the test PASSES */
 
   /* Set up a trap vector */
-  la t0, .default_trap_vector
+  la t0, .new_trap_vector
   csrw mtvec, t0
 
   /* Define the enclave-private memory as two Gigas of DRAM */ 
@@ -71,7 +69,7 @@ dut_entry:
 
   j .test_failure
 
-.default_trap_vector:
+.new_trap_vector:
   csrr t0, mcause // Check this is a Store Page Fault
   li t1, 0xF
   bne t0, t1, .test_failure
