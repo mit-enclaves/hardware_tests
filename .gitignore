@@ -8,3 +8,5 @@ build
 *.log
 *.out
 *.tmp
+
+SOCK.*

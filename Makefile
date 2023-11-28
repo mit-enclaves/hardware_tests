@@ -98,7 +98,7 @@ LOG_FILE := $(HW_TESTS_DIR)/debug.log
 
 .PHONY: %.tasksim
 %.tasksim: check_env_riscy $(BUILD_DIR)/%.elf
-	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_1.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock/verilator/bin/ubuntu.exe --core-num 1 --rom $(RISCY_HOME)/procs/rom/out/rom_core_1 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > $(LOG_FILE)
+	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock.llc_lru/verilator/bin/ubuntu.exe --core-num 1 --rom $(RISCY_HOME)/procs/rom/out/rom_core_1 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > $(LOG_FILE)
 
 .PHONY: run_tests_simulator
 run_tests_simulator: $(HW_TESTS_TASKSIM)
@@ -108,7 +108,7 @@ run_tests_simulator: $(HW_TESTS_TASKSIM)
 .PHONY: %.taskfpga
 %.taskfpga: check_env $(BUILD_DIR)/%.elf
 	sudo fpga-load-local-image -S 0 -I agfi-0b25880fb5ae74da1
-	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock.non_uniform_L2/awsf1/bin/ubuntu.exe --core-num 2 --rom $(RISCY_HOME)/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 --ignore-user-stucks 1000000
+	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock.llc_lru/awsf1/bin/ubuntu.exe --core-num 2 --rom $(RISCY_HOME)/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 --ignore-user-stucks 1000000
 
 .PHONY: run_tests_fpga
 run_tests_fpga: $(HW_TESTS_TASKFPGA)
