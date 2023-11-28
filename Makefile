@@ -98,7 +98,7 @@ LOG_FILE := $(HW_TESTS_DIR)/debug.log
 
 .PHONY: %.tasksim
 %.tasksim: check_env_riscy $(BUILD_DIR)/%.elf
-	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock.llc_lru/verilator/bin/ubuntu.exe --core-num 1 --rom $(RISCY_HOME)/procs/rom/out/rom_core_1 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > $(LOG_FILE)
+	-$(RISCY_HOME)/procs/build/RV64G_OOO.core_2.core_SMALL.cache_LARGE.tso.l1_cache_lru.secure_flush.check_deadlock.llc_lru.fix/verilator/bin/ubuntu.exe --core-num 2 --rom $(RISCY_HOME)/procs/rom/out/rom_core_2 --elf $(BUILD_DIR)/$*.elf --mem-size 2048 > $(LOG_FILE)
 
 .PHONY: run_tests_simulator
 run_tests_simulator: $(HW_TESTS_TASKSIM)

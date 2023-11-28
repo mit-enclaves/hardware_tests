@@ -40,14 +40,19 @@ void flush_llc_region(uintptr_t start_addr, int lgsize){
 
     int size_index_range = 1 << lgsize;
 
-    __attribute__((unused)) volatile uint64_t buff = 0;
     for(int stride = 0; stride < LLC_NUM_WAYS; stride++) {
         for(int i = 0; i < size_index_range; i++) {
             uintptr_t index = (size_index_range * stride) + i;
             uintptr_t addr = ZERO_DEVICE_OFFSET | start_addr | (index << LLC_INDEX_OFFSET);
-            set_csr(CSR_MSPEC, MSPEC_NOUSEL1);
-            buff = *((uint64_t *) addr);
-            clear_csr(CSR_MSPEC, MSPEC_NOUSEL1);
+            register uintptr_t t0 asm ("t0") = addr;
+            // Activate and deactivate L1 use near the load responsible for the flush.
+            asm volatile(" \
+            csrsi 0x7ca, 16; \n \
+            #csrwi 0x801,  1; \n \
+            ld t0, 0(t0); \n \
+            #csrwi 0x801,  0; \n \
+            csrci 0x7ca, 16; \n\
+            " : : "r" (t0));
         }
         asm volatile ("fence" ::: "memory");
     }
