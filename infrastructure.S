@@ -58,3 +58,50 @@ platform_panic:
 /* Halt */
 .halt:
   j .halt /* spin forever, for now */
+
+.globl switch_s_mode
+switch_s_mode:
+/* INPUT:
+  $ a0 should contain user_program address
+*/
+
+  /* Switch to S-mode, jump to the protected range */
+  /** Set mPP to 1 (S-mode), sIE to 1, mPIE to 0 and TVM to 1 **/
+  csrr t0, mstatus
+  # MSTATUS_TVM:  0x00100000
+  # MSTATUS_MPP:  0x00001800
+  # MSTATUS_mPIE: 0x00000080
+  # MSTATUS_SIE:  0x00000002
+  li t1, 0xFFFFFFFFFFEFE77D
+  li t2, 0x00100802
+  and t0, t0, t1
+  or t0, t0, t2
+  csrw mstatus, t0
+
+  /* Set return address to malicious program mret to S-mode */
+  csrw mepc, a0
+  mret
+
+.globl switch_u_mode
+switch_u_mode:
+/* INPUT:
+  $ a0 should contain user_program address
+*/
+
+  /* Switch to U-mode, jump to the protected range */
+  /** Set TVM to 1, MPP to 0 (U-mode), MPIE, SIE to 0 and UIE to 1 **/
+  csrr t0, mstatus
+  # MSTATUS_TVM:  0x00100000
+  # MSTATUS_MPP:  0x00001800
+  # MSTATUS_mPIE: 0x00000080
+  # MSTATUS_SIE:  0x00000002
+  # MSTATUS_UIE:  0x00000001
+  li t1, 0xFFFFFFFFFFEFE77C
+  li t2, 0x00100001
+  and t0, t0, t1
+  or t0, t0, t2
+  csrw mstatus, t0
+
+  /* Set return address to malicious program mret to U-mode */
+  csrw mepc, a0
+  mret

@@ -7,7 +7,7 @@ import struct
 # pages in 0x80000000-0x80200000 mapped as 4KB pages via a third level page table (PT_2)
 # These page tables are written to reside at 0xFFFFD000
 
-leaf_permissions = 0b11101111 # D A G (not U) X W R V
+leaf_permissions = 0b11011111 # D A (not G) U X W R V
 node_permissions = 0b00000001 # Node
 
 PGSHIFT = 12

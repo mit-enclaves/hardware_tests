@@ -28,23 +28,9 @@ dut_entry:
   /** Set the root page table address for trusted page walk **/
   csrw 0x07C2, t1 # Set meatp
 
-  /* Switch to S-mode, jump to the protected range */
-  /** Set mPP to 1 (S-mode), sIE to 1, mPIE to 0 and TVM to 1 **/
-  csrr t0, mstatus
-  # MSTATUS_TVM:  0x00100000
-  # MSTATUS_MPP:  0x00001800
-  # MSTATUS_mPIE: 0x00000080
-  # MSTATUS_SIE:  0x00000002
-  li t1, 0xFFFFFFFFFFEFE77D
-  li t2, 0x00100802
-  and t0, t0, t1
-  or t0, t0, t2
-  csrw mstatus, t0
-
-  /* Set return address to malicious program mret to S-mode */
-  la t0, .user_program
-  csrw mepc, t0
-  mret
+  /** Enter user_program in U-mode **/
+  la a0, .user_program
+  j switch_u_mode
  
 .user_program:
   li a0, 0x91000000
@@ -74,6 +60,7 @@ dut_entry:
   bne a3, a2, .loop2
 
   csrw 0x801, 0
+  la t0, .user_program
   lw zero, 0(t0)
   li a0, 1 // The test is successful
   jr ra

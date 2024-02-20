@@ -39,23 +39,9 @@ dut_entry:
   srl t0, t0, 0xC # Physical Address divided by 4KiB
   csrw 0x07C2, t0 # Set meatp
 
-  /* Switch to S-mode, jump to the protected range */
-  /** Set mPP to 1 (S-mode), sIE to 1, mPIE to 0 and TVM to 1 **/
-  csrr t0, mstatus
-  # MSTATUS_TVM:  0x00100000
-  # MSTATUS_MPP:  0x00001800
-  # MSTATUS_mPIE: 0x00000080
-  # MSTATUS_SIE:  0x00000002
-  li t1, 0xFFFFFFFFFFEFE77D
-  li t2, 0x00100802
-  and t0, t0, t1
-  or t0, t0, t2
-  csrw mstatus, t0
-
-  /* Set return address to malicious program mret to S-mode */
-  la t0, .malicious_program
-  csrw mepc, t0
-  mret
+  /** Enter malicious_program in U-mode **/
+  la a0, .malicious_program
+  j switch_u_mode
  
 .malicious_program: /* Tries to write at the limit of the protected range and then inside */
   la t0, _illegal_address_mega // Write on next Mega page
